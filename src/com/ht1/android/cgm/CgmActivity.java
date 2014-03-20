@@ -53,8 +53,8 @@ public class CgmActivity extends Activity {
 		
 		mDumpTextView.setTextColor(Color.WHITE);
 		mDumpTextView.setText("\n" + "Loading..." + "\n");
-		mTitleTextView.setTextColor(Color.RED);
-		mTitleTextView.setText("CGM Service Starting..");
+		mTitleTextView.setTextColor(Color.YELLOW);
+		mTitleTextView.setText("CGM Service Starting...");
 
 		LinearLayout lnr = (LinearLayout) findViewById(R.id.container);
 

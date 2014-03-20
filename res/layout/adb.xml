@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:textSize="50px"
-        android:gravity="center"
+        android:gravity="left"
 		android:textStyle="bold"
  
         />
@@ -27,7 +27,7 @@
             android:layout_height="match_parent"
             android:textSize="40px"
 			
- 			android:gravity="center" />
+ 			android:gravity="left" />
     </ScrollView>
       <LinearLayout android:id="@+id/container"
       android:orientation="vertical"
