@@ -26,7 +26,7 @@ public class CgmService extends Service {
     //public List<EgvRecord> egvRecordList = new ArrayList<EgvRecord>();
 
     public EgvRecord getMostRecentEgv() {
-		return new EgvRecord();
+		return mostRecentEgv;
 	}
 
 	public class G4ServiceBinder extends Binder {
@@ -59,7 +59,7 @@ public class CgmService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
+		this.mostRecentEgv = new EgvRecord();
 		Log.i(TAG, "Starting Service...");
 
 	}

@@ -1,10 +1,10 @@
 package com.ht1.android.cgm;
 
 
+import java.io.File;
+
 import com.ht1.android.cgm.CgmService.G4ServiceBinder;
 import com.ht1.android.cgm.records.EgvRecord;
-import com.ht1.android.cgm.R;
-
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -14,6 +14,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -36,15 +37,24 @@ public class CgmActivity extends Activity {
 
 	CgmService mService;
 	boolean mBound = false;
-	EgvRecord mostRecentEgv;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		Intent intent = new Intent(this, CgmService.class);
+		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		
+		setContentView(R.layout.adb);
 		mTitleTextView = (TextView) findViewById(R.id.demoTitle);
 		mDumpTextView = (TextView) findViewById(R.id.demoText);
 		mScrollView = (ScrollView) findViewById(R.id.demoScroller);
+		
+		mDumpTextView.setTextColor(Color.WHITE);
+		mDumpTextView.setText("\n" + "Loading..." + "\n");
+		mTitleTextView.setTextColor(Color.RED);
+		mTitleTextView.setText("CGM Service Starting..");
 
 		LinearLayout lnr = (LinearLayout) findViewById(R.id.container);
 
@@ -53,15 +63,7 @@ public class CgmActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-
-		if(!this.isCgmServiceRunning()){
-			startService(new Intent(CgmActivity.this,
-					CgmService.class));
-			Log.i(TAG, "Starting Service...");
-		}
-
-		Intent intent = new Intent(this, CgmService.class);
-		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		mHandler.post(updateDataView);
 
 	}
 
@@ -90,6 +92,7 @@ public class CgmActivity extends Activity {
 			G4ServiceBinder binder = (G4ServiceBinder) service;
 			mService = binder.getService();
 			mBound = true;
+			Log.i(TAG, "ServiceConnected Callback");
 		}
 
 		@Override
@@ -97,29 +100,26 @@ public class CgmActivity extends Activity {
 			mBound = false;
 		}
 	};
-
-	private boolean isCgmServiceRunning() {
-		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-		for (RunningServiceInfo service : manager
-				.getRunningServices(Integer.MAX_VALUE)) {
-			if (CgmService.class.getName().equals(
-					service.service.getClassName())) {
-				return true;
-			}
-		}
-		return false;
-	}
 	
 	private Runnable updateDataView = new Runnable() {
 		@Override
 		public void run() {
 
-			if (!isCgmServiceRunning()) {
+			if (mBound) {
+				
+				EgvRecord record = mService.getMostRecentEgv();
+				mTitleTextView.setTextColor(Color.GREEN);
+				mTitleTextView.setText("CGM Service Started");
+				
+				mDumpTextView.setTextColor(Color.WHITE);
+				mDumpTextView.setText("\n" + record.displayTime + "\n" + record.bGValue
+						+ "\n" + record.trendArrow + "\n");
+				
 				
 			} else {
 				
 			}
-			mHandler.postDelayed(updateDataView, 30000);
+			mHandler.postDelayed(updateDataView, 5000);
 		}
 	};
 
