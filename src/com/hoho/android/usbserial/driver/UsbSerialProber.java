@@ -54,27 +54,27 @@ public enum UsbSerialProber {
      *
      * @see FtdiSerialDriver
      */
-    FTDI_SERIAL {
-        @Override
-        public List<UsbSerialDriver> probe(final UsbManager manager, final UsbDevice usbDevice) {
-            if (!testIfSupported(usbDevice, FtdiSerialDriver.getSupportedDevices())) {
-                return Collections.emptyList();
-            }
-            final UsbDeviceConnection connection = manager.openDevice(usbDevice);
-            if (connection == null) {
-                return Collections.emptyList();
-            }
-            final UsbSerialDriver driver = new FtdiSerialDriver(usbDevice, connection);
-            return Collections.singletonList(driver);
-        }
-    },
+//    FTDI_SERIAL {
+//        @Override
+//        public List<UsbSerialDriver> probe(final UsbManager manager, final UsbDevice usbDevice) {
+//            if (!testIfSupported(usbDevice, FtdiSerialDriver.getSupportedDevices())) {
+//                return Collections.emptyList();
+//            }
+//            final UsbDeviceConnection connection = manager.openDevice(usbDevice);
+//            if (connection == null) {
+//                return Collections.emptyList();
+//            }
+//            final UsbSerialDriver driver = new FtdiSerialDriver(usbDevice, connection);
+//            return Collections.singletonList(driver);
+//        }
+//    },
 
     CDC_ACM_SERIAL {
         @Override
         public List<UsbSerialDriver> probe(UsbManager manager, UsbDevice usbDevice) {
-            if (!testIfSupported(usbDevice, CdcAcmSerialDriver.getSupportedDevices())) {
-               return Collections.emptyList();
-            }
+//            if (!testIfSupported(usbDevice, CdcAcmSerialDriver.getSupportedDevices())) {
+//               return Collections.emptyList();
+//            }
             final UsbDeviceConnection connection = manager.openDevice(usbDevice);
             if (connection == null) {
                 return Collections.emptyList();
@@ -82,37 +82,37 @@ public enum UsbSerialProber {
             final UsbSerialDriver driver = new CdcAcmSerialDriver(usbDevice, connection);
             return Collections.singletonList(driver);
         }
-    },
+    }; //,
 
-    SILAB_SERIAL {
-        @Override
-        public List<UsbSerialDriver> probe(final UsbManager manager, final UsbDevice usbDevice) {
-            if (!testIfSupported(usbDevice, Cp2102SerialDriver.getSupportedDevices())) {
-                return Collections.emptyList();
-            }
-            final UsbDeviceConnection connection = manager.openDevice(usbDevice);
-            if (connection == null) {
-                return Collections.emptyList();
-            }
-            final UsbSerialDriver driver = new Cp2102SerialDriver(usbDevice, connection);
-            return Collections.singletonList(driver);
-        }
-    },
-
-    PROLIFIC_SERIAL {
-        @Override
-        public List<UsbSerialDriver> probe(final UsbManager manager, final UsbDevice usbDevice) {
-            if (!testIfSupported(usbDevice, ProlificSerialDriver.getSupportedDevices())) {
-                return Collections.emptyList();
-            }
-            final UsbDeviceConnection connection = manager.openDevice(usbDevice);
-            if (connection == null) {
-                return Collections.emptyList();
-            }
-            final UsbSerialDriver driver = new ProlificSerialDriver(usbDevice, connection);
-            return Collections.singletonList(driver);
-        }
-    };
+//    SILAB_SERIAL {
+//        @Override
+//        public List<UsbSerialDriver> probe(final UsbManager manager, final UsbDevice usbDevice) {
+//            if (!testIfSupported(usbDevice, Cp2102SerialDriver.getSupportedDevices())) {
+//                return Collections.emptyList();
+//            }
+//            final UsbDeviceConnection connection = manager.openDevice(usbDevice);
+//            if (connection == null) {
+//                return Collections.emptyList();
+//            }
+//            final UsbSerialDriver driver = new Cp2102SerialDriver(usbDevice, connection);
+//            return Collections.singletonList(driver);
+//        }
+//    },
+//
+//    PROLIFIC_SERIAL {
+//        @Override
+//        public List<UsbSerialDriver> probe(final UsbManager manager, final UsbDevice usbDevice) {
+//            if (!testIfSupported(usbDevice, ProlificSerialDriver.getSupportedDevices())) {
+//                return Collections.emptyList();
+//            }
+//            final UsbDeviceConnection connection = manager.openDevice(usbDevice);
+//            if (connection == null) {
+//                return Collections.emptyList();
+//            }
+//            final UsbSerialDriver driver = new ProlificSerialDriver(usbDevice, connection);
+//            return Collections.singletonList(driver);
+//        }
+//    };
 
     /**
      * Tests the supplied {@link UsbDevice} for compatibility with this enum
