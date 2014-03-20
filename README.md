@@ -1,14 +1,8 @@
-original-android-cgm
-====================
+cgm-data-liberator
+==================
 
-My original code for grabbing CGM data via an Android device... not pretty!
+Stubbing out, prepping for more...
 
-This was my, learn as I go, need to build this to keep an eye on my 5 year-old, android application.
+Tired of waiting for code? Please feel free to fix up my old stuff :-) in the interim.
 
-It is not well designed, properly implemented or remotely recommended for use. BE smart, do not make medical decisions based on any data it is gathering.
-
-It is presented for educational purposes, feel free to clean it up and goof around with it.
-
-To connect to the Dexcom G4, you will need a OTG USB cable.
-
-The Dexcom USB port will break! It was not designed for frequent connect/disconnects. Get a spare:-) and be gentle.
+https://github.com/hackingtype1/original-android-cgm
