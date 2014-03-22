@@ -8,6 +8,7 @@ public class EgvRecord implements Serializable {
     public String bGValue = "---";
     public String trend ="---";
     public String trendArrow = "---";
+    public String simpleTime = "---";
     public boolean isSpecial = false;
     
     private static final long serialVersionUID = 4654897646L;
@@ -27,10 +28,12 @@ public class EgvRecord implements Serializable {
     public void setTrendArrow (String input) {
     	this.trendArrow = input;
     }
+
+	public void setSimpleTime(String format) {
+		this.simpleTime = format;
+		
+	}
     
-    public static List<EgvRecord> parseEgvDatabasePage(byte [] egvDatabasePage)
-    {
-    	return null;
-    }
+
 }
 

@@ -2,6 +2,7 @@ package com.ht1.android.cgm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.hoho.android.usbserial.driver.*;
@@ -21,8 +22,11 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 
 public class CgmService extends Service {
@@ -41,6 +45,7 @@ public class CgmService extends Service {
 	private Handler mHandler = new Handler();
 
 	private boolean toggleUsbPower = true;
+	
 
 	//public EgvRecord mostRecentEgv = new EgvRecord(); 
 	public boolean dataConnected;
@@ -49,18 +54,27 @@ public class CgmService extends Service {
 	public List<EgvRecord> egvRecordList = new ArrayList<EgvRecord>();
 
 	public EgvRecord getMostRecentEgv() {
-		return new EgvRecord();
+		int listSize = egvRecordList.size();
+		if (listSize > 0) {
+			return egvRecordList.get(egvRecordList.size() - 1);
+		}
+		else {
+			EgvRecord junk = new EgvRecord();
+			junk.bGValue = "Not Recently Acquired";
+			return junk;
+		}
 	}
 
 	public class G4ServiceBinder extends Binder {
 		CgmService getService() {
-			// Return this instance of G4ServiceBinder so clients can call public methods
+			Log.i(TAG, "G4ServiceBinder");
 			return CgmService.this;
 		}
 	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
+		Log.i(TAG, "on bind");
 		return mBinder;
 	}
 
@@ -86,16 +100,17 @@ public class CgmService extends Service {
 
 	private Runnable readCgmData = new Runnable() {
 		public void run() {
-			
+
 			getBatteryLifePercentageRemaining(); 
-			
+
 			try {
 				if (isCgmConnected() && isDataConnected()) {		
 					USBOn();
 					mSerialDevice = null;
 					mSerialDevice = UsbSerialProber.acquire(mUsbManager);
 					CgmReader reader = new CgmReader(mSerialDevice);
-					reader.readEgvRecords(LAST_FOUR_PAGES_ONLY);
+					egvRecordList = reader.readEgvRecords(LAST_FOUR_PAGES_ONLY);
+					egvRecordList.removeAll(Collections.singleton(null));
 					//doReadAndUpload();
 					USBOff();
 				} else {
@@ -202,8 +217,4 @@ public class CgmService extends Service {
 		Log.i(TAG, "battery life = " + this.batteryLifePercentageRemaining);
 		return this.batteryLifePercentageRemaining;
 	}
-
-
-
-
 }

@@ -19,6 +19,9 @@ import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -28,57 +31,71 @@ import android.widget.TextView;
 public class CgmActivity extends Activity {
 
 	private static final String TAG = "CgmActivity";	
-	
+
 	//ui
 	private TextView mTitleTextView;
 	private TextView mDumpTextView;
 	private ScrollView mScrollView;
-	
+
 	public UsbManager mUsbManager;
 
 	private Handler mHandler = new Handler();
 
 	CgmService mService;
+	Messenger mServiceMessenger = null;
 	boolean mBound = false;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		Intent intent = new Intent(this, CgmService.class);
-		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-		
+
+
+
 		setContentView(R.layout.adb);
 		mTitleTextView = (TextView) findViewById(R.id.demoTitle);
 		mDumpTextView = (TextView) findViewById(R.id.demoText);
 		mScrollView = (ScrollView) findViewById(R.id.demoScroller);
-		
+
 		mDumpTextView.setTextColor(Color.WHITE);
 		mDumpTextView.setText("\n" + "Loading..." + "\n");
 		mTitleTextView.setTextColor(Color.YELLOW);
 		mTitleTextView.setText("CGM Service Starting...");
 
 		LinearLayout lnr = (LinearLayout) findViewById(R.id.container);
-
+		
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		mHandler.post(updateDataView);
+		Intent intent = new Intent(this, CgmService.class);
+		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		Log.i(TAG, "onStart");
 
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+		mHandler.removeCallbacks(updateDataView);
+		Log.i(TAG, "onPause");
 
 	}
-	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mHandler.post(updateDataView);
+		Log.i(TAG, "onResume");
+		
+	}
+
 	@Override
 	protected void onStop() {
 		super.onStop();
+		mHandler.removeCallbacks(updateDataView);
+		Log.i(TAG, "onStop");
 		// Unbind from the service
 		if (mBound) {
 			unbindService(mConnection);
@@ -95,6 +112,7 @@ public class CgmActivity extends Activity {
 			G4ServiceBinder binder = (G4ServiceBinder) service;
 			mService = binder.getService();
 			mBound = true;
+			mHandler.post(updateDataView);
 			Log.i(TAG, "ServiceConnected Callback");
 		}
 
@@ -103,27 +121,38 @@ public class CgmActivity extends Activity {
 			mBound = false;
 		}
 	};
-	
+
+
 	private Runnable updateDataView = new Runnable() {
 		@Override
 		public void run() {
-
 			if (mBound) {
-				
-				EgvRecord record = mService.getMostRecentEgv();
-				mTitleTextView.setTextColor(Color.GREEN);
-				mTitleTextView.setText("CGM Service Started");
-				
-				mDumpTextView.setTextColor(Color.WHITE);
-				mDumpTextView.setText("\n" + record.displayTime + "\n" + record.bGValue
-						+ "\n" + record.trendArrow + "\n");
-				
-				
+				Log.i(TAG, "updateDataView found bound service, refreshing UI");
+				refreshUI();
 			} else {
-				
+				Log.i(TAG, "updateDataView NO bound service, cannot refresh UI");
 			}
-			mHandler.postDelayed(updateDataView, 5000);
+			mHandler.postDelayed(updateDataView, 15000);
 		}
 	};
+	
+	private void refreshUI() {
+		EgvRecord record = mService.getMostRecentEgv();
+		mTitleTextView.setTextColor(Color.GREEN);
+		mTitleTextView.setText("CGM Service Started");
+
+		if(mService.cgmConnected){
+			Log.i(TAG, "cgmConnected = true");
+			mDumpTextView.setTextColor(Color.WHITE);
+			mDumpTextView.setText("\n" + record.simpleTime + "\n" + record.bGValue
+					+ "\n" + record.trendArrow + "\n");
+		} else {
+			Log.i(TAG, "cgmConnected = false");
+			mDumpTextView.setTextColor(Color.RED);
+			mDumpTextView.setText("\n" + "CGM Disconnected\n" + record.simpleTime + "\n" + record.bGValue
+					+ "\n" + record.trendArrow +  "\n");
+		}
+	}
+
 
 }
