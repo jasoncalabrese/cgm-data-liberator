@@ -86,6 +86,7 @@ public class CgmService extends Service {
 
 		//Run (eventually from config) the requested logic
 		//For now, we will start a handler that runs every 45 seconds, get most recent Egv data.
+		
 		mHandler.post(readCgmData);
 
 
@@ -120,7 +121,7 @@ public class CgmService extends Service {
 
 				Log.e(TAG, "Unable to readAndUpload", e);
 			}
-
+			mHandler.removeCallbacks(readCgmData);
 			mHandler.postDelayed(readCgmData, 45000);
 		}
 	};
