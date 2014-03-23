@@ -50,18 +50,13 @@ public class CgmActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-
-
 		setContentView(R.layout.adb);
 		mTitleTextView = (TextView) findViewById(R.id.demoTitle);
 		mDumpTextView = (TextView) findViewById(R.id.demoText);
 		mScrollView = (ScrollView) findViewById(R.id.demoScroller);
 
-		mDumpTextView.setTextColor(Color.WHITE);
-		mDumpTextView.setText("\n" + "Loading..." + "\n");
-		mTitleTextView.setTextColor(Color.YELLOW);
-		mTitleTextView.setText("CGM Service Starting...");
-
+		warmupUI();
+		
 		LinearLayout lnr = (LinearLayout) findViewById(R.id.container);
 		
 	}
@@ -86,6 +81,7 @@ public class CgmActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		warmupUI();
 		mHandler.post(updateDataView);
 		Log.i(TAG, "onResume");
 		
@@ -152,6 +148,13 @@ public class CgmActivity extends Activity {
 			mDumpTextView.setText("\n" + "CGM Disconnected\n" + record.simpleTime + "\n" + record.bGValue
 					+ "\n" + record.trendArrow +  "\n");
 		}
+	}
+	
+	private void warmupUI() {
+		mDumpTextView.setTextColor(Color.WHITE);
+		mDumpTextView.setText("\n" + "Looking for data..." + "\n");
+		mTitleTextView.setTextColor(Color.YELLOW);
+		mTitleTextView.setText("Connecting to CGM...");
 	}
 
 

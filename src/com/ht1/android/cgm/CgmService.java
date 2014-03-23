@@ -40,12 +40,9 @@ public class CgmService extends Service {
 	private UsbSerialDriver mSerialDevice;
 	private UsbManager mUsbManager;
 	private WifiManager mWifiManager;
-
 	private UploadHelper mUploader;
 	private Handler mHandler = new Handler();
-
-	private boolean toggleUsbPower = true;
-	
+	private Intent mBatteryStatus;	
 
 	//public EgvRecord mostRecentEgv = new EgvRecord(); 
 	public boolean dataConnected;
@@ -60,7 +57,7 @@ public class CgmService extends Service {
 		}
 		else {
 			EgvRecord junk = new EgvRecord();
-			junk.bGValue = "Not Recently Acquired";
+			junk.bGValue = "Recent Data Unavailable";
 			return junk;
 		}
 	}
@@ -85,6 +82,7 @@ public class CgmService extends Service {
 
 		mWifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
 		mUsbManager = (UsbManager) this.getSystemService(Context.USB_SERVICE);
+		mBatteryStatus = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
 		//Run (eventually from config) the requested logic
 		//For now, we will start a handler that runs every 45 seconds, get most recent Egv data.
@@ -128,7 +126,7 @@ public class CgmService extends Service {
 	};
 
 	private void USBOff() {
-		if(toggleUsbPower)
+		if(isBatteryPowered())
 		{
 			if (mSerialDevice != null) {
 				try {
@@ -149,12 +147,12 @@ public class CgmService extends Service {
 
 		} else
 		{
-			Log.i(TAG, "toggleUsbPower = " + toggleUsbPower);
+			Log.i(TAG, "Skipping USB Power Off command");
 		}
 	}
 
 	private void USBOn() {
-		if(toggleUsbPower)
+		if(isBatteryPowered())
 		{
 			if (mSerialDevice != null) {
 				try {
@@ -173,16 +171,8 @@ public class CgmService extends Service {
 				Log.w(TAG, "USBOn called, but mSerialDevice is null.");
 			}
 		} else {
-			Log.i(TAG, "toggleUsbPower = " + toggleUsbPower);
+			Log.i(TAG, "Skipping USB Power On command");
 		}
-	}
-
-	public boolean isToggleUsbPower() {
-		return toggleUsbPower;
-	}
-
-	public void setToggleUsbPower(boolean toggleUsbPower) {
-		this.toggleUsbPower = toggleUsbPower;
 	}
 
 	private boolean isDataConnected() {
@@ -210,11 +200,32 @@ public class CgmService extends Service {
 		return this.cgmConnected;
 	}
 
-
 	public int getBatteryLifePercentageRemaining() {
-		Intent i= this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+		Intent i= mBatteryStatus;
 		this.batteryLifePercentageRemaining = i.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
 		Log.i(TAG, "battery life = " + this.batteryLifePercentageRemaining);
 		return this.batteryLifePercentageRemaining;
 	}
+
+	public boolean isBatteryPowered() {
+		int plugged = mBatteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+		Log.i(TAG, "plugged:" + plugged);
+        if (plugged == BatteryManager.BATTERY_PLUGGED_AC) {
+        	Log.i(TAG, "plugged in");
+        	return false;
+        } else if (plugged == BatteryManager.BATTERY_PLUGGED_USB) {
+        	Log.i(TAG, "usb power plugged in");
+            return false;
+        } else if (plugged == 0) {
+        	Log.i(TAG, "not plugged in");
+            return true;
+        } else {
+        	Log.i(TAG, "cannot determine BATTERY_PLUGGED state");
+            return true; //unknown
+        }
+	}
+	
+	
 }
+
+
