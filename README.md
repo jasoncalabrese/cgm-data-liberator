@@ -1,8 +1,9 @@
 cgm-data-liberator
 ==================
 
-Stubbing out, prepping for more...
+Cleaner, more easily extended and support Android - G4 Uploader application.
 
-Tired of waiting for code? Please feel free to fix up my old stuff :-) in the interim.
+Currently it reads the last four pages of Estimated Glucose Value records and places them in an array list for uploading.
 
-https://github.com/hackingtype1/original-android-cgm
+UploadHelpers are not implemented, and the service itself does not make any attempt to send the arraylist data anywhere.
+
